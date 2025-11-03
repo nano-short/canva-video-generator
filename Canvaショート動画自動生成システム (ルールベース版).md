@@ -1,12 +1,13 @@
-# Canvaショート動画自動生成システム (ルールベース版)
+# Canvaショート動画自動生成システム (Ollama/OpenAI対応版)
 
-このプロジェクトは、DMMなどの外部データソースから取得した情報を元に、**ルールベースのロジック**を活用してマーケティング効果の高いテキストを自動生成し、Canvaの「一括作成」機能にインポートするためのCSVファイルを生成するシステムです。
+このプロジェクトは、DMMなどの外部データソースから取得した情報を元に、大規模言語モデル (LLM) を活用してマーケティング効果の高いテキストを自動生成し、Canvaの「一括作成」機能にインポートするためのCSVファイルを生成するシステムです。
 
-**コストを抑えるため、OpenAIなどの大規模言語モデル（LLM）への依存を排除しました。**
+**OpenAI APIとローカルLLM (Ollama) の両方に対応し、コストとクオリティの両立を目指します。**
 
 ## 特徴
 
-- **ルールベースのテキスト自動生成**: DMMのあらすじを句読点で分割し、「フック→展開→クリフハンガー」の構成に自動でアレンジします。
+- **LLMによるテキスト自動生成**: DMMのあらすじを「フック→展開→クリフハンガー」の構成にアレンジし、視聴者の興味を惹くコピーを自動生成します。
+- **Ollama対応**: ローカルLLM (Llama 3など) を使用することで、**OpenAI APIの費用をかけずに**高いクオリティのテキスト生成が可能です。
 - **Canva連携の最適化**: Canvaの「一括作成」機能に合わせたCSV形式で出力し、動画の量産を可能にします。
 - **運用に配慮した設計**: 設定ファイル (`config.py`) とAPIラッパー (`dmm_api.py`) を分離し、実際のDMM API連携を容易にしました。
 
@@ -14,9 +15,8 @@
 
 | ファイル名 | 役割 |
 | :--- | :--- |
-| `final_canva_csv_generator.py` | メインの実行スクリプト。ルールベースのテキスト生成とCSV生成ロジックを統合。 |
-| `rule_based_text_generator.py` | **LLMの代わり**となる、ルールベースのテキスト生成ロジックを実装。 |
-| `config.py` | DMM APIキー、アフィリエイトID、動画設定、モックデータなどを格納。 |
+| `final_canva_csv_generator.py` | メインの実行スクリプト。LLM連携とCSV生成ロジックを実装。 |
+| `config.py` | DMM APIキー、LLM設定（Ollama/OpenAI）、動画設定、モックデータなどを格納。 |
 | `dmm_api.py` | DMM APIからデータを取得するためのラッパー関数を実装。 |
 | `requirements.txt` | 必要なPythonライブラリを記述。 |
 | `canva_import_data.csv` | スクリプト実行時に生成されるCanvaインポート用CSVファイル。 |
@@ -24,6 +24,7 @@
 ## 必要な環境
 
 - Python 3.x
+- **ローカルLLMを使用する場合**: Ollamaのインストールと、使用するモデル（例: `llama3`）のダウンロード。
 
 ## セットアップ
 
@@ -38,8 +39,14 @@
     pip install -r requirements.txt
     ```
 
-3.  **APIキーの設定**
-    - `config.py` を開き、`DMM_API_ID` と `DMM_AFFILIATE_ID` をご自身の情報に置き換えてください。
+3.  **LLMとAPIキーの設定**
+    - **ローカルLLM (Ollama) を使用する場合**:
+        - Ollamaを起動し、モデルをダウンロードします (`ollama run llama3`)。
+        - `config.py` の `OLLAMA_BASE_URL` と `LLM_MODEL` を設定します。
+    - **OpenAI APIを使用する場合**:
+        - 環境変数 `OPENAI_API_KEY` を設定します。
+        - `config.py` の `OLLAMA_BASE_URL` をコメントアウトし、`LLM_MODEL` を `gpt-4.1-mini` などに設定します。
+    - `config.py` の `DMM_API_ID` と `DMM_AFFILIATE_ID` をご自身の情報に置き換えてください。
 
 ## 使用方法
 
